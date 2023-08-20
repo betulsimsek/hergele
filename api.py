@@ -73,3 +73,4 @@ def kart_saklama_listesi():
 
 if __name__ == '__main__':
     app.run()
+
