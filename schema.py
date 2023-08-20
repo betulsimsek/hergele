@@ -12,3 +12,7 @@ class UserSchema(Schema):
     selectedCard = fields.String(required=True)
     allCards = fields.List(fields.String(), required=True)
     balance = fields.Float(required=True)
+
+class CardRegistrationSchema(Schema):
+    userNo = fields.Integer(required=True)
+    cardNo = fields.String(required=True)

@@ -1,46 +1,61 @@
 from flask import Flask, jsonify, request
-from schema import UserSchema
-from operator_opt import perform_payment, process_refund
+from schema import UserSchema, CardRegistrationSchema
+from marshmallow import ValidationError
+from operator_opt import perform_payment, process_refund, card_listing, card_registration, update_balance_with_card
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__)
 
 users = []
 user_schema = UserSchema()
+card_registration_schema = CardRegistrationSchema()
+load_dotenv()
+
+# Get MongoDB URI and DB name from environment variables
+mongodb_uri = os.getenv("MONGODB_URI")
+db_name = os.getenv("DB_NAME")
+
+# Connect to MongoDB
+client = MongoClient(mongodb_uri)
+db = client[db_name]
+collection = db['users']
 
 @app.route('/kart-saklama', methods=['POST'])
 def kart_saklama():
-    user_data = request.get_json()
-    errors = user_schema.validate(user_data)
-    if errors:
-        return jsonify({'error': errors}), 400
+    user = request.args.get('userNo')
+    card = request.args.get('cardNo')
+    
+    response, status_code = card_registration(user, card)
 
-    user = user_schema.load(user_data)
-
-    users.append(user)
-
-    return jsonify({'message': 'Kart başarıyla saklandı'}), 201
-
-
-import logging
+    return jsonify(response), status_code
 
 @app.route('/kart-saklamali-odeme', methods=['POST'])
 def kart_saklamali_odeme():
     user_no = request.args.get('userNo')
     amount = request.args.get('amount')
-    
-    response, status_code = perform_payment(user_no, amount)
-    
-    return jsonify(response), status_code
 
+    response, status_code = perform_payment(user_no, amount)
+
+    return jsonify(response), status_code
 
 @app.route('/iade', methods=['POST'])
 def iade():
     user_no = request.args.get('userNo')
-    
+
     response, status_code = process_refund(user_no)
-    
+
     return jsonify(response), status_code
 
+@app.route('/update_balance', methods=['POST'])
+def update_balance():
+    user_no = request.args.get('userNo')
+    balance = request.args.get('balance')
+    response, status_code = update_balance_with_card(user_no, balance)
+
+    return jsonify(response), status_code
 
 @app.route('/kart-saklama-listesi', methods=['GET'])
 def kart_saklama_listesi():
