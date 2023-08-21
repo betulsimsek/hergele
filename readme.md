@@ -1,3 +1,5 @@
+Postman API:https://api.postman.com/collections/18954017-49ced358-d20a-4718-8735-59c4bcfe7012?access_key=PMAT-01H8BK3ZQGANN130JMKD86102K
+
 Bu proje, bir ödeme işlemi gerçekleştirmek, geri ödeme yapmak, kart listelemek ve kart kaydetmek gibi özellikleri olan bir ödeme sistemini içermektedir. 
 
 Projenin çalışma mantığı şu şekildedir:
