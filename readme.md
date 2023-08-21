@@ -236,4 +236,39 @@ Postman sorguları:
    - Query Parameters: 
      - userNo: `<kullanıcı numarası>`
 
+User Authenticate and Create User
+### authenticate_first_route:
+Bu rota, ilk adım için kimlik doğrulama sürecini yönetir. POST isteği alır, isteğin başlıklarını alır ve başlıklardan 'Filo' ve 'userNo' değerlerini alır. Ardından, 'userNo' değerine göre kullanıcı belgesini bulur ve `secrets.token_hex()` fonksiyonunu kullanarak yeni bir yetkilendirme kodu oluşturur. Yeni yetkilendirme kodu, kullanıcı için 'auth' koleksiyonunda saklanır. Son olarak, 'Filo' ve 'userNo' değerlerine dayanarak kimlik doğrulama yapar ve kullanıcının bulunup bulunmadığına dair bir yanıt döndürür.
+
+POST /authenticate_first_route
+Content-Type: application/json
+
+{
+  "Filo": "exampleFilosu",
+  "userNo": "12345"
+}
+### authenticate_second_route:
+Bu rota, ikinci adım için kimlik doğrulama sürecini yönetir. Bu da bir POST isteği alır ve isteğin başlıklarını alır. Önceki rotada olduğu gibi, başlıklardan 'Filo', 'Authorization' ve 'userNo' değerlerini alır. 'userNo' değerine göre kullanıcı belgesini bulur ve yeni bir yetkilendirme kodu oluşturur. Yeni yetkilendirme kodu, kullanıcı için 'auth' koleksiyonuna kaydedilir. Daha sonra, 'Filo', 'Authorization' ve 'userNo' değerlerine dayanarak kimlik doğrulama yapar. Tüm koşullar sağlandığında, kullanıcının doğrulandığını belirten bir yanıt döndürür. Aksi takdirde, kullanıcı kimlik doğrulamasının başarısız olduğunu belirten bir yanıt döndürür.
+
+POST /authenticate_second_route
+Content-Type: application/json
+Authorization: Bearer exampleToken
+userNo: 12345
+Filo: hergele
+
+### create_user:
+Bu rota, yeni bir kullanıcı oluşturmayı sağlar. Bir POST isteği alır ve isteğin JSON verilerini alır. Verilerden 'userNo', 'authCode', 'name', 'surname', 'birthDate', 'phoneNumber', 'email', 'selectedCard', 'allCards' ve 'balance' gibi gereken alanları çıkarır. Bu alanlarla birlikte bir kullanıcı belgesi oluşturur ve 'users' koleksiyonuna ekler. Son olarak, kullanıcının başarıyla oluşturulduğunu belirten bir yanıt döndürür.
+
+{
+  "userNo": "12345",
+  "authCode": "abcdef",
+  "name": "John",
+  "surname": "Doe",
+  "birthDate": "1990-01-01",
+  "phoneNumber": "555-5555",
+  "email": "john.doe@example.com",
+  "selectedCard": "1234 5678 1234 1334",
+  "balance": 100.00
+}
+
 

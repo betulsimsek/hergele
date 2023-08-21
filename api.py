@@ -1,3 +1,4 @@
+import secrets
 from flask import Flask, jsonify, request
 from schema import UserSchema, CardRegistrationSchema
 from marshmallow import ValidationError
@@ -5,7 +6,6 @@ from operator_opt import perform_payment, process_refund, card_listing, card_reg
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-
 
 app = Flask(__name__)
 
@@ -71,6 +71,102 @@ def kart_saklama_listesi():
 
     return jsonify({'cards': cards})
 
+
+@app.route('/authenticate_first_route', methods=['POST'])
+def authenticate_first_route():
+    # Get the headers from the request
+    headers = request.headers
+    
+    # Get the values from the headers
+    filo = headers.get('Filo')
+    user_no = headers.get('userNo')
+    
+    # Find the user document based on the userNo
+    user = db['users'].find_one({'userNo': user_no})
+    
+    # Generate a new authorization code
+    new_auth_code = secrets.token_hex(6)  # Generate a secure random hex token
+    
+    # Save the new authorization code in the auth collection for the user
+    db['auth'].insert_one({'userNo': user_no, 'auth_code': new_auth_code})
+
+    # Perform authentication and return the result as a response
+    if filo == 'hergele' and user_no == user:
+        response = {'message': 'User found.'}
+        db['auth_responses'].insert_one(response)
+
+    else:
+
+        response = {'message': 'User not found.'}
+        db['auth_responses'].insert_one(response)
+
+    return jsonify({'message': 'Kullanıcı başarıyla bulundu.'}), 201
+
+
+@app.route('/authenticate_second_route', methods=['POST'])
+def authenticate_second_route():
+    # Get the headers from the request
+    headers = request.headers
+    
+    # Get the values from the headers
+    filo = headers.get('Filo')
+    authorization = headers.get('Authorization')
+    user_no = headers.get('userNo')
+    
+    # Find the user document based on the userNo
+    user = db['users'].find_one({'userNo': user_no})
+    
+    # Generate a new authorization code
+    new_auth_code = secrets.token_hex(6)  # Generate a secure random hex token
+    
+    # Save the new authorization code in the auth collection for the user
+    db['auth'].insert_one({'userNo': user_no, 'auth_code': new_auth_code})
+
+    # Perform authentication and return the result as a response
+    if filo == 'hergele' and authorization == new_auth_code and user_no == user:
+        response = {'message': 'User verified.'}
+    else:
+        response = {'message': 'User authentication failed.'}
+
+    db['auth_responses'].insert_one(response)
+    
+    return jsonify({'message': 'Kullanıcı başarıyla doğrulandı.'}), 201
+
+
+
+
+@app.route('/create_user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    
+    user_no = data.get('userNo')
+    auth_code = data.get('authCode')
+    name = data.get('name')
+    surname = data.get('surname')
+    birth_date = data.get('birthDate')
+    phone_number = data.get('phoneNumber')
+    email = data.get('email')
+    selected_card = data.get('selectedCard')
+    all_cards = data.get('allCards')
+    balance = data.get('balance')
+    
+    user = {
+        'userNo': user_no,
+        'authCode': auth_code,
+        'name': name,
+        'surname': surname,
+        'birthDate': birth_date,
+        'phoneNumber': phone_number,
+        'email': email,
+        'selectedCard': selected_card,
+        'allCards': all_cards,
+        'balance': balance
+    }
+    db['users'].insert_one(user)
+    
+    return jsonify({'message': 'Kullanıcı başarıyla oluşturuldu.'}), 201
+
 if __name__ == '__main__':
     app.run()
+
 
