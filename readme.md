@@ -1,4 +1,4 @@
-Postman API:https://api.postman.com/collections/18954017-49ced358-d20a-4718-8735-59c4bcfe7012?access_key=PMAT-01H8BK3ZQGANN130JMKD86102K
+Postman API:https://blue-moon-503502.postman.co/workspace/Team-Workspace~164df39a-2847-4ba2-8867-062d1b738a06/collection/18954017-49ced358-d20a-4718-8735-59c4bcfe7012?action=share&creator=18954017
 
 Bu proje, bir ödeme işlemi gerçekleştirmek, geri ödeme yapmak, kart listelemek ve kart kaydetmek gibi özellikleri olan bir ödeme sistemini içermektedir. 
 
